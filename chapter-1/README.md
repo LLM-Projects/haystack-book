@@ -1,9 +1,12 @@
 # First RAG Pipeline
+Creating Your First QA Pipeline with Retrieval-Augmentation On Custom Documents Using Haystack
+
+This notebook primarily focusses on utilising Haystack for building a QA Piepline using RAG on Custom documents. This notebook makes use of Haystack v2.0(latest as of the time the book is written).
+
+We are running a RAG pipeline on the custom documents (gathered from API source) and answer questions on the same.
 
 ## Installation
-This notebook primarily focusses on utilising Haystack for building a QA Piepline using RAG on Custom documents. This notebook makes use of Haystack v2.0.
-
-Intially install all the requirements using `pip` or alternatively use the command.
+Install all the requirements using `pip`. Use the command.
 ```bash
 pip install -r requirements.txt
 ```
@@ -46,7 +49,7 @@ Finally, we are ready to build the Pipeline by combining all the previous compon
 ### What is a Haystack Pipeline?
 A pipeline is a wrapper that contains multiple components connected together and hids the internal functionality from the user just exposing the input and the output data.
 In haystack terms, Pipeline is defined as:
-> The pipelines in Haystack 2.0 are directed multigraphs of different Haystack components and integrations.
+> The pipelines in Haystack 2.0 are directed [multigraphs](https://en.wikipedia.org/wiki/Multigraph) of different Haystack components and integrations.
 We can achieve branching, looping, which speeds up the execution of the tasks. Through branching we achieve parallelism which in turn improves concurrency.
 
 Then through loops we can iterate to the same pipeline again based on the past computation which improves the result, or capture the error until the loop can be executed. This is similar to a RCNN as in comparsion to deep learning.
@@ -55,6 +58,7 @@ We can add multiple components using the `pipeline_name.add_component()` with 2 
 
 Now that we have components we have to connect them using the `pipeline_name.connect()` method that takes 2 parameters i.e. input and output component respectively. We also pass the respective inputs and this method will validate if the types of input and output match the given connection.
 
+We can infer the same from the pipeline graph that haystack has to offer. One key thing to notice is the lines that connects various components. Dotted lines represent it's not mandatory to pass the tail component to the head component. A solid line represents a mandatory connection where any issue in the tail component breaks the entire pipeline flow thereby hindering `pipeline.run()`.
 <!-- If need more content can add more about Pipeline Serialization and Graph Output generation -->
 
 ## Executing RAG Pipeline

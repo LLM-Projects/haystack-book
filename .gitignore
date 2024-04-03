@@ -162,3 +162,4 @@ cython_debug/
 # Miscellaneous
 settings.json
 test.py
+.DS_Store

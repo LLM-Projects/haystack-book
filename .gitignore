@@ -163,3 +163,4 @@ cython_debug/
 settings.json
 test.py
 .DS_Store
+.vscode/

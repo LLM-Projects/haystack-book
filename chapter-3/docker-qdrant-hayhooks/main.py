@@ -40,17 +40,62 @@ def get_data():
     return documents
 
 
+def build_indexing_pipeline():
+    # Create a new index pipeline
+    indexing_pipeline = Pipeline()
+
+    # Define all the components
+    indexing_pipeline.add_component("embedder", SentenceTransformersDocumentEmbedder())
+    indexing_pipeline.add_component("writer", DocumentWriter(QdrantDocumentStore()))
+
+    # Connect the components
+    indexing_pipeline.connect("embedder", "writer")
+
+    return indexing_pipeline
+
+
+def build_query_pipeline():
+    # Create a new query pipeline
+    query_pipeline = Pipeline()
+
+    # Define all the components
+    query_pipeline.add_component("embedder", SentenceTransformersTextEmbedder())
+    query_pipeline.add_component(
+        "retriever", QdrantEmbeddingRetriever(QdrantDocumentStore())
+    )
+
+    query_pipeline.add_component("prompt_builder", PromptBuilder(template=template))
+    query_pipeline.add_component(
+        "generator",
+        OpenAIGenerator(model="gpt-3.5-turbo"),
+    )
+
+    # Connect the components
+    # query_pipeline.connect("embedder.embedding", "retriever.query_embedding", "prompt_builder.query_embedding")
+    query_pipeline.connect("embedder.embedding", "retriever.query_embedding")
+    query_pipeline.connect("retriever", "prompt_builder.documents")
+    query_pipeline.connect("prompt_builder", "generator")
+
+    return query_pipeline
+
+
 if __name__ == "__main__":
-    indexing = Pipeline()
-    indexing.add_component("embedder", SentenceTransformersDocumentEmbedder())
-    indexing.add_component("writer", DocumentWriter(QdrantDocumentStore()))
-    indexing.connect("embedder", "writer")
-
+    # Get the list of documents, you can modify the source of your data
     documents_list = get_data()
-    indexing.run({"documents": documents_list})
-    print(indexing.dumps())
-    # Displays {'writer': {'documents_written': 1}}
 
+    # Establish the indexing pipeline
+    indexing_pipeline = build_indexing_pipeline()
+
+    # Run the index pipeline and flush the data as documents
+    indexing_pipeline.run({"documents": documents_list})
+    
+    # Displays {"writer": {"documents_written": 1}}
+
+    # Set the `OPENAI_API_KEY` as an environment variable
+    if "OPENAI_API_KEY" not in os.environ:
+        os.environ["OPENAI_API_KEY"] = getpass("Enter OpenAI API key:")
+    
+    # Define the prompt template to be passed to the LLM generator
     template = """
                 Given the following information, answer the query
                 based on data from Document store.
@@ -62,28 +107,17 @@ if __name__ == "__main__":
 
                 Question: {{ query }}?
               """
-    if "OPENAI_API_KEY" not in os.environ:
-        os.environ["OPENAI_API_KEY"] = getpass("Enter OpenAI API key:")
 
-    generator = OpenAIGenerator(model="gpt-3.5-turbo")
+    querying_pipeline = build_query_pipeline()
 
-    query = Pipeline()
-    query.add_component("embedder", SentenceTransformersTextEmbedder())
-    query.add_component("retriever", QdrantEmbeddingRetriever(QdrantDocumentStore()))
-    query.add_component("prompt_builder", PromptBuilder(template=template))
-    query.add_component(
-        "generator",
-        generator,
-    )
+    querying_pipeline_data = querying_pipeline.dumps()
+    pipeline_file = open("pipelines/query.yml", "w+")
+    pipeline_file.writelines(querying_pipeline_data)
 
-    # query.connect("embedder.embedding", "retriever.query_embedding", "prompt_builder.query_embedding")
-    query.connect("embedder.embedding", "retriever.query_embedding")
-    query.connect("retriever", "prompt_builder.documents")
-    query.connect("prompt_builder", "generator")
-    question = "Summarize Sonnet 151."
+    question = input("Enter the query: ")
 
     print(
-        query.run(
+        querying_pipeline.run(
             {
                 "embedder": {"text": question},
                 "prompt_builder": {"query": question},

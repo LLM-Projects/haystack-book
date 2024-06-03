@@ -1,5 +1,9 @@
 ## Docker deployment
 
+🕹️ Demo
+https://gist.github.com/assets/81156510/dc880d50-a3a3-433b-94e3-7b74cdb0cdfe
+> P.S.: Since I ran the this earlier too I have the documents in the Qdrant Document Store. In your case this will not be the same.
+
 ### Utilities
 - 📚 [Haystack](https://haystack.deepset.ai)
 - 🪝 [Hayhooks](https://docs.haystack.deepset.ai/docs/hayhooks)
@@ -11,9 +15,9 @@
 - Ensure docker is [installed](https://www.docker.com/get-started/) locally in your system and the docker daemon in running.
 - Then clone the repository using the command: ```git clone https://github.com/LLM-Projects/haystack-book.git```.
 - Move to the appropriate directory: ```cd chapter-3/docker-qdrant-hayhooks/```
-- Then run the docker container: ```docker compose up -d```. If you need to see the logs then disable the detached mode by removing the `-d` flag.
+- Then run the docker container: ```docker-compose --env-file .env up -d```. If you need to see the logs then disable the detached mode by removing the `-d` flag.
 - If the containers are running successfully verify whether hayhooks and qdrant instances are up and running: http://localhost:1416/ and http://localhost:6333/dashboard.
-- Then get an OpenAI API key from [here](https://platform.openai.com/api-keys).
+- Then get an OpenAI API key from [here](https://platform.openai.com/api-keys) and store it in `.env` file in the current directory which will be used later.
 - Please make sure to keep the server running and don't terminate the terminal as well as the container.
 
 ### Working
@@ -27,6 +31,7 @@
 - Then we build the query pipeline where we [embed](https://docs.haystack.deepset.ai/docs/sentencetransformerstextembedder) the query, perform the [retrieval](https://docs.haystack.deepset.ai/docs/qdrantembeddingretriever) to get the closest documents using cosine similarity, and [generate](https://docs.haystack.deepset.ai/docs/openaigenerator) a response based on the prompt from the prompt template as mentioned above.
 ![querying pipeline](https://gist.github.com/assets/81156510/af827a3b-4707-4113-b998-6ca9cf06e8f5)
 - Display the response to the user.
+![final response](https://gist.github.com/assets/81156510/c9331498-7b5d-41e0-aada-0c9d9fb3cf43)
 
 ### Accessibility
 - Python (as mentioned in the section above)

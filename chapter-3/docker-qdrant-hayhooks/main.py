@@ -110,10 +110,6 @@ if __name__ == "__main__":
 
     querying_pipeline = build_query_pipeline()
 
-    querying_pipeline_data = querying_pipeline.dumps()
-    pipeline_file = open("pipelines/query.yml", "w+")
-    pipeline_file.writelines(querying_pipeline_data)
-
     question = input("Enter the query: ")
 
     print(

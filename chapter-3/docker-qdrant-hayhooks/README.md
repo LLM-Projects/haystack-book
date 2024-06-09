@@ -39,6 +39,7 @@ https://gist.github.com/assets/81156510/dc880d50-a3a3-433b-94e3-7b74cdb0cdfe
 - We can add or delete the pipeline using `/deploy` or `/undeploy` endpoint on hayhooks endpoint at port `1416`.
 - Alternatively, we can mount the directory that contains the pipelines in the `.yml` format. And we can use them as deployed pipelines with the endpoint as the file name.
 ![hayhooks deployment](https://gist.github.com/assets/81156510/5f08e1f4-2d13-4769-b305-fc47df2e620f)
+P.S.: Reference can be found at [haystack-demos/qdrant_indexing](https://github.com/deepset-ai/haystack-demos/tree/main/qdrant_indexing).
 
 ### Accessibility
 - Python (as mentioned in the section above)

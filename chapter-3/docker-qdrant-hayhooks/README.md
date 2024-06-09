@@ -20,7 +20,7 @@ https://gist.github.com/assets/81156510/dc880d50-a3a3-433b-94e3-7b74cdb0cdfe
 - Then get an OpenAI API key from [here](https://platform.openai.com/api-keys) and store it in `.env` file in the current directory which will be used later.
 - Please make sure to keep the server running and don't terminate the terminal as well as the container.
 
-### Working
+### Working (Using Python)
 - After the hayhooks and qdrant instances are up and running then we need to push the data to the qdrant data store and query the documents to get response.
 - First we fetch the data. It can be from the API as shown or from anywhere. But the final output must be a list of documents where each [`Document`](https://docs.haystack.deepset.ai/docs/data-classes#document)  the `content` and the `metadata` which is optional.
 - Then we make create a indexing [pipeline](https://docs.haystack.deepset.ai/reference/pipeline-api) to [write](https://docs.haystack.deepset.ai/docs/documentwriter) the documents into the [QdrantDocumentStore](https://docs.haystack.deepset.ai/docs/qdrant-document-store).
@@ -32,6 +32,12 @@ https://gist.github.com/assets/81156510/dc880d50-a3a3-433b-94e3-7b74cdb0cdfe
 ![querying pipeline](https://gist.github.com/assets/81156510/af827a3b-4707-4113-b998-6ca9cf06e8f5)
 - Display the response to the user.
 ![final response](https://gist.github.com/assets/81156510/c9331498-7b5d-41e0-aada-0c9d9fb3cf43)
+
+### Working (Using [Hayhooks](https://docs.haystack.deepset.ai/docs/hayhooks))
+- This setup uses Hayhooks, an application server that exposes Haystack pipelines as HTTP Endpoints.
+- We can add or delete the pipeline using `/deploy` or `/undeploy` endpoint.
+- Alternatively, we can mount the directory that contains the pipelines in the `.yml` format. And we can use them as deployed pipelines with the endpoint as the file name.
+![hayhooks deployment](https://gist.github.com/assets/81156510/5f08e1f4-2d13-4769-b305-fc47df2e620f)
 
 ### Accessibility
 - Python (as mentioned in the section above)

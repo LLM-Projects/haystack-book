@@ -50,3 +50,7 @@ Then we can track the runs in the Langfuse dashboard.
 
 ## Custom Component (Prompt Injection)
 In Reliable AI, we need to ensure that prompts aren't manipulated. So to ensure that the prompts are safe and not manipulated we make use of the pretrained models from Huggingface as a component. This showcases how we can ensure a reliable response from LLM and at the same time showcase the power of haystack custom component feature to flexibly integrate anything into a pipeline.
+
+**Most common position in a pipeline**: After the [PromptBuilder](https://docs.haystack.deepset.ai/docs/promptbuilder) component
+**Mandatory input variables**: `prompt_input` : string
+**Output variables**: `safe` and `injection` : Floating values

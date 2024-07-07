@@ -5,5 +5,4 @@
 - Kubernetes
 
 ### Pipeline Architecture
-- Examples
-- Best practices
+- Predefined VS Custom

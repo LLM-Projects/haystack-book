@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: haystack-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: haystack
+  template:
+    metadata:
+      labels:
+        app: haystack
+    spec:
+      containers:
+        - image: deepset/hayhooks:main
+          name: hayhooks
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: config-volume
+              mountPath: /opt/pipelines
+          env:
+            - name: HAYHOOKS_PIPELINES_DIR
+              value: /opt/pipelines
+      volumes:
+        - name: config-volume
+          configMap:
+            name: pipelines

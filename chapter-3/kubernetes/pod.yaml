@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hayhooks
+  labels:
+    app: haystack
+spec:
+  containers:
+    - image: deepset/hayhooks:main
+      name: hayhooks
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        - name: config-volume
+          mountPath: /opt/pipelines
+      env:
+        - name: HAYHOOKS_PIPELINES_DIR
+          value: /opt/pipelines
+  volumes:
+    - name: config-volume
+      configMap:
+        name: pipelines

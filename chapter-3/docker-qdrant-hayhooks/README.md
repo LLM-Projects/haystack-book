@@ -77,7 +77,63 @@ curl -X "POST" "http://localhost:1416/qdrant_query" \
 }
 ```
 
-#### REST API requests
+#### REST API requests (using Postman or any other tools)
+Contains the equivalent REST commands for the [cURL](https://github.com/LLM-Projects/haystack-book/blob/main/chapter-3/docker-qdrant-hayhooks/README.md#curl) methods from hayhooks served at `PORT::1416`:
+- Indexing (/qdrant_indexing)
+- Querying (/qdrant_query)
+of the Qdrant Hayhooks Docker deployment.  
+After the [setup](https://github.com/LLM-Projects/haystack-book/blob/main/chapter-3/docker-qdrant-hayhooks/README.md#prerequisites) with relevant data we can run the REST commands to perform the specified actions.
+
+Postman link: https://documenter.getpostman.com/view/18446656/2sA3kPqQKi
+
+---
+
+##### `POST` Indexing
+To add new indexes (documents) to the underlying document store in out case its [qdrant](https://qdrant.tech).
+
+- - Request Headers
+
+| Header | Value |
+| --- | --- |
+| Accept       | application/json     |
+| Content-Type | application/json     |
+
+- - Body raw(json)
+```json
+{
+  "converter": {
+    "sources": [
+      {
+        "meta": {},
+        "data": "add_your_content_here"
+      }
+    ],
+    "meta": {}
+  },
+  "writer": {}
+}
+```
+
+##### `POST` Querying
+To retrieve a list of the most closest documents from the document store based on query.
+
+- - Request Headers
+
+| Header | Value |
+| --- | --- |
+| Content-Type | application/json; charset=utf-8 |
+
+- - Body raw(json)
+```json
+{
+  "embedder": {
+    "text": "ask_your_query_here"
+  },
+  "retriever": {}
+}
+```
+
+#### REST API requests (from qdrant dashboard)
 Here are some example requests:
 ```bash
 // List all collections

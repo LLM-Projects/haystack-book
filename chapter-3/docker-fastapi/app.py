@@ -30,7 +30,7 @@ from haystack.components.generators import OpenAIGenerator
 
 from haystack.components.embedders import SentenceTransformersTextEmbedder
 from haystack.components.retrievers.in_memory import InMemoryEmbeddingRetriever
-from haystack.components.builders import PromptBuilder
+from haystack.components.builders import PromptBuilder,AnswerBuilder
 
 app = FastAPI()
 
@@ -74,7 +74,7 @@ indexing_pipeline.connect("embedder", "writer")
 
 # Create querying pipeline
 template = """
-Answer the questions based on the given context. If the context is not relevant, say "I don't know"
+Answer the questions based on the given context.
 
 Context:
 {% for document in documents %}
@@ -85,13 +85,17 @@ Question: {{ question }}
 Answer:
 """
 querying_pipeline = Pipeline()
-querying_pipeline.add_component("embedder", SentenceTransformersTextEmbedder(model="sentence-transformers/all-MiniLM-L6-v2"))
+querying_pipeline.add_component("query_embedder", SentenceTransformersTextEmbedder(model="sentence-transformers/all-MiniLM-L6-v2"))
 querying_pipeline.add_component("retriever", InMemoryEmbeddingRetriever(document_store=document_store))
 querying_pipeline.add_component("prompt_builder", PromptBuilder(template=template))
-querying_pipeline.add_component("generator", generator)
-querying_pipeline.connect("embedder.embedding", "retriever.query_embedding")
+querying_pipeline.add_component("llm", OpenAIGenerator(model="gpt-3.5-turbo"))
+querying_pipeline.add_component("answer_builder", AnswerBuilder())
+querying_pipeline.connect("query_embedder", "retriever.query_embedding")
 querying_pipeline.connect("retriever", "prompt_builder.documents")
-querying_pipeline.connect("prompt_builder", "generator")
+querying_pipeline.connect("prompt_builder", "llm")
+querying_pipeline.connect("llm.replies", "answer_builder.replies")
+querying_pipeline.connect("llm.meta", "answer_builder.meta")
+querying_pipeline.connect("retriever", "answer_builder.documents")
 
 # PostgreSQL connection
 conn = psycopg2.connect(os.environ.get("DATABASE_URL"))
@@ -114,8 +118,8 @@ async def upload_file(file: UploadFile = File(...)):
         temp_file_path = temp_file.name
 
     # Run indexing pipeline
-    result = indexing_pipeline.run({"converter": {"sources": ["Q1-2023-Amazon-Earnings-Release"]}})
-    print(f"Number of documents indexed: {len(result['writer'])}")
+    result = indexing_pipeline.run({"converter": {"sources": [temp_file_path]}})
+    print(f"Documents indexed: {result}")
 
     # Remove the temporary file
     os.unlink(temp_file_path)
@@ -126,24 +130,15 @@ async def upload_file(file: UploadFile = File(...)):
 async def query(query: Query):
     try:
         # Run querying pipeline
+
         result = querying_pipeline.run(
-            {
-                "embedder": {"text": query.question},
-                "prompt_builder": {"question": query.question}
-            }
-        )
+                        data={"query_embedder": {"text": query.question}, "prompt_builder": {"question": query.question}, "answer_builder": {"query": query.question}})
+                
         
-        
-        # Check if 'generator' is in the result
-        if "generator" not in result or "replies" not in result["generator"]:
-            raise ValueError("Generator did not provide expected output")
-        
-        answer = result["generator"]["replies"][0]
+        answer = result['answer_builder']['answers'][0].data
         
         # Safely get context, providing a default if not available
-        context = []
-        if "retriever" in result and "documents" in result["retriever"]:
-            context = [doc.content for doc in result["retriever"]["documents"]]
+        context = [d.content for d in result['answer_builder']['answers'][0].documents]
         
         # Store query and response in PostgreSQL
         cur = conn.cursor()
@@ -153,6 +148,7 @@ async def query(query: Query):
         )
         conn.commit()
         
+        print(f"answer: {answer}, context: {context}")
         return {"answer": answer, "context": context}
     
     except Exception as e:

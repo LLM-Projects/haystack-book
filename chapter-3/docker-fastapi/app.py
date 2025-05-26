@@ -1,39 +1,36 @@
-from fastapi import FastAPI, File, UploadFile
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from pydantic import BaseModel
-import uvicorn
 import os
-from dotenv import load_dotenv
 import tempfile
+
 import psycopg2
-
+import uvicorn
+from dotenv import load_dotenv
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from haystack import Pipeline
-from haystack.document_stores.in_memory import InMemoryDocumentStore
 from haystack.components.converters import PyPDFToDocument
-from haystack.components.preprocessors import DocumentCleaner
-from haystack.components.preprocessors import DocumentSplitter
-from haystack.components.writers import DocumentWriter
-
 # sentence transformer model for retrieval
 from haystack.components.embedders import SentenceTransformersDocumentEmbedder
+from haystack.components.preprocessors import DocumentCleaner, DocumentSplitter
+from haystack.components.writers import DocumentWriter
+from haystack.document_stores.in_memory import InMemoryDocumentStore
+from pydantic import BaseModel
 
 document_embedder = SentenceTransformersDocumentEmbedder(
     model="sentence-transformers/all-MiniLM-L6-v2"
 )
 
 # GPT-3.5 for generation
-import os
-from getpass import getpass
+
+from haystack.components.builders import AnswerBuilder, PromptBuilder
+from haystack.components.embedders import SentenceTransformersTextEmbedder
 from haystack.components.generators import OpenAIGenerator
+from haystack.components.retrievers.in_memory import InMemoryEmbeddingRetriever
 
 # if "OPENAI_API_KEY" not in os.environ:
 #     os.environ["OPENAI_API_KEY"] = getpass("Enter OpenAI API key:")
 # generator = OpenAIGenerator(model="gpt-3.5-turbo")
 
-from haystack.components.embedders import SentenceTransformersTextEmbedder
-from haystack.components.retrievers.in_memory import InMemoryEmbeddingRetriever
-from haystack.components.builders import PromptBuilder, AnswerBuilder
 
 app = FastAPI()
 

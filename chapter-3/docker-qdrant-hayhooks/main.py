@@ -88,13 +88,13 @@ if __name__ == "__main__":
 
     # Run the index pipeline and flush the data as documents
     indexing_pipeline.run({"documents": documents_list})
-    
+
     # Displays {"writer": {"documents_written": 1}}
 
     # Set the `OPENAI_API_KEY` as an environment variable
     if "OPENAI_API_KEY" not in os.environ:
         os.environ["OPENAI_API_KEY"] = getpass("Enter OpenAI API key:")
-    
+
     # Define the prompt template to be passed to the LLM generator
     template = """
                 Given the following information, answer the query

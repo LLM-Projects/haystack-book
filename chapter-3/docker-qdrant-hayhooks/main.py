@@ -1,19 +1,16 @@
-import os
 import getpass
-import requests
+import os
 
-from haystack import Pipeline
-from haystack import Document
-from haystack.components.writers import DocumentWriter
-from haystack.components.embedders import (
-    SentenceTransformersTextEmbedder,
-    SentenceTransformersDocumentEmbedder,
-)
-from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
-from haystack_integrations.components.retrievers.qdrant import QdrantEmbeddingRetriever
+import requests
+from haystack import Document, Pipeline
 from haystack.components.builders.prompt_builder import PromptBuilder
-from haystack.utils import Secret
+from haystack.components.embedders import (
+    SentenceTransformersDocumentEmbedder, SentenceTransformersTextEmbedder)
 from haystack.components.generators import OpenAIGenerator
+from haystack.components.writers import DocumentWriter
+from haystack_integrations.components.retrievers.qdrant import \
+    QdrantEmbeddingRetriever
+from haystack_integrations.document_stores.qdrant import QdrantDocumentStore
 
 
 def get_data():
@@ -88,13 +85,13 @@ if __name__ == "__main__":
 
     # Run the index pipeline and flush the data as documents
     indexing_pipeline.run({"documents": documents_list})
-    
+
     # Displays {"writer": {"documents_written": 1}}
 
     # Set the `OPENAI_API_KEY` as an environment variable
     if "OPENAI_API_KEY" not in os.environ:
         os.environ["OPENAI_API_KEY"] = getpass("Enter OpenAI API key:")
-    
+
     # Define the prompt template to be passed to the LLM generator
     template = """
                 Given the following information, answer the query
